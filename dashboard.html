@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Express Solicitors NCT — Phase 1 Progress</title>
+<style>
+  :root{
+    --artifact-navy: var(--theme-primary, #000F50);
+    --artifact-cyan: #02C9B0;
+    --artifact-cyan-bright: #02FEE1;
+    --artifact-purple: #3A00D4;
+    --artifact-bg: var(--theme-background, #F5F7FC);
+    --artifact-surface: var(--theme-background-light, #FFFFFF);
+    --artifact-ink: var(--theme-text-primary, #0B1240);
+    --artifact-muted: #5A6288;
+    --artifact-line: #E4E8F4;
+    --artifact-track: #EAEDF6;
+    /* status */
+    --st-complete: #0F9D8F;
+    --st-complete-bg: #E1F6F3;
+    --st-progress: #3A00D4;
+    --st-progress-bg: #ECE5FF;
+    --st-started: #C77700;
+    --st-started-bg: #FCEFD6;
+    --st-scoped: #5A6288;
+    --st-scoped-bg: #EDEFF6;
+    --artifact-card-shadow: 0 1px 2px rgba(11,18,64,.06), 0 8px 24px rgba(11,18,64,.05);
+  }
+  html[data-theme='dark']{
+    --artifact-bg:#0A0E28; --artifact-surface:#111634; --artifact-ink:#EAECFA; --artifact-muted:#A6ADD6;
+    --artifact-line:#242B52; --artifact-track:#1D2447;
+    --st-complete-bg:#0E2E2A; --st-progress-bg:#221347; --st-started-bg:#33280F; --st-scoped-bg:#1B2145;
+    --st-complete:#3FE0CE; --st-progress:#B39CFF; --st-started:#F0B44E; --st-scoped:#A6ADD6;
+    --artifact-card-shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--artifact-bg);color:var(--artifact-ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.5;padding:32px 20px 64px}
+  .shell{max-width:1080px;margin:0 auto}
+  /* Header */
+  .masthead{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;margin-bottom:10px}
+  .brand{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--artifact-muted);font-weight:700}
+  h1{font-size:30px;line-height:1.15;margin:6px 0 4px;font-weight:800;letter-spacing:-.01em}
+  .sub{color:var(--artifact-muted);font-size:14px;max-width:640px}
+  .tagline{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--artifact-cyan);font-weight:700;text-align:right}
+  .asof{font-size:18px;font-weight:700;color:var(--artifact-ink);text-align:right;margin-top:2px;letter-spacing:-.01em}
+  /* Hero */
+  .hero{display:flex;gap:28px;align-items:center;background:var(--artifact-navy);color:#fff;
+    border-radius:18px;padding:26px 30px;margin:22px 0 26px;box-shadow:var(--artifact-card-shadow)}
+  .ring{position:relative;width:132px;height:132px;flex:none}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .pct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .ring .pct b{font-size:34px;font-weight:800;letter-spacing:-.02em;color:#fff}
+  .ring .pct span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--artifact-cyan-bright);font-weight:700}
+  .hero-txt h2{margin:0 0 6px;font-size:18px;font-weight:700}
+  .hero-txt p{margin:0;font-size:13.5px;color:#C7CCF0;max-width:560px}
+  .hero-txt .mini{display:flex;gap:22px;margin-top:16px;flex-wrap:wrap}
+  .mini .k{font-size:22px;font-weight:800;line-height:1}
+  .mini .l{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#9AA2D8;margin-top:4px}
+  /* controls */
+  .controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .controls .lbl{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--artifact-muted);font-weight:700;margin-right:2px}
+  .chip{border:1px solid var(--artifact-line);background:var(--artifact-surface);color:var(--artifact-ink);
+    padding:6px 13px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:7px}
+  .chip .dot{width:9px;height:9px;border-radius:50%}
+  .chip:hover{border-color:var(--artifact-purple)}
+  .chip.active{background:var(--artifact-navy);color:#fff;border-color:var(--artifact-navy)}
+  .chip.client{border-style:dashed}
+  /* section rows */
+  .rows{display:flex;flex-direction:column;gap:14px}
+  .row{background:var(--artifact-surface);border:1px solid var(--artifact-line);border-radius:14px;
+    padding:18px 20px;box-shadow:var(--artifact-card-shadow);transition:opacity .2s,transform .2s}
+  .row.dim{opacity:.32}
+  .row-top{display:flex;align-items:center;gap:14px}
+  .num{flex:none;width:34px;height:34px;border-radius:9px;background:var(--artifact-navy);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+  .title{font-size:15.5px;font-weight:700;flex:1;min-width:120px}
+  .status{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:4px 10px;border-radius:999px;white-space:nowrap}
+  .s-complete{color:var(--st-complete);background:var(--st-complete-bg)}
+  .s-progress{color:var(--st-progress);background:var(--st-progress-bg)}
+  .s-started{color:var(--st-started);background:var(--st-started-bg)}
+  .s-scoped{color:var(--st-scoped);background:var(--st-scoped-bg)}
+  .bar-wrap{display:flex;align-items:center;gap:14px;margin:14px 0 4px}
+  .track{flex:1;height:12px;background:var(--artifact-track);border-radius:999px;overflow:hidden}
+  .fill{height:100%;width:0;border-radius:999px;transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+  .f-complete{background:linear-gradient(90deg,var(--artifact-navy),var(--st-complete))}
+  .f-progress{background:linear-gradient(90deg,var(--artifact-navy),var(--artifact-purple))}
+  .f-started{background:linear-gradient(90deg,var(--artifact-navy),var(--st-started))}
+  .f-scoped{background:linear-gradient(90deg,#7A82AC,var(--st-scoped))}
+  .pctnum{font-size:20px;font-weight:800;width:52px;text-align:right;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+  /* comment area */
+  .comment{display:grid;grid-template-columns:1.15fr 1fr;gap:22px;margin-top:14px;padding-top:14px;border-top:1px solid var(--artifact-line)}
+  .comment h4{margin:0 0 8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--artifact-muted);font-weight:700}
+  .comment p{margin:0;font-size:13.5px;color:var(--artifact-ink)}
+  .owners{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .owner{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:6px;background:var(--st-progress-bg);color:var(--st-progress)}
+  .owner.client{background:var(--st-scoped-bg);color:var(--st-scoped)}
+  .rem li{font-size:13.5px;margin-bottom:5px;color:var(--artifact-ink)}
+  .rem ul{margin:0;padding-left:18px}
+  .row-head{cursor:pointer;outline:none}
+  .row-head:focus-visible{box-shadow:0 0 0 2px var(--artifact-purple);border-radius:10px}
+  .caret{flex:none;margin-left:6px;width:18px;height:18px;color:var(--artifact-muted);transition:transform .22s ease}
+  .row.open .caret{transform:rotate(180deg)}
+  .comment{display:none}
+  .row.open .comment{display:grid;animation:revealC .25s ease}
+  @keyframes revealC{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  .expand-controls{display:flex;gap:8px;justify-content:flex-end;margin-bottom:12px}
+  .mini-btn{border:1px solid var(--artifact-line);background:var(--artifact-surface);color:var(--artifact-muted);font-size:12px;font-weight:600;padding:5px 12px;border-radius:8px;cursor:pointer;transition:all .15s}
+  .mini-btn:hover{border-color:var(--artifact-purple);color:var(--artifact-ink)}
+  .ec-spacer{flex:1}
+  .mini-btn.primary{background:var(--artifact-navy);color:#fff;border-color:var(--artifact-navy)}
+  .mini-btn.primary:hover{background:var(--artifact-purple);border-color:var(--artifact-purple);color:#fff}
+  .mini-btn.toggle.on{background:var(--st-progress);color:#fff;border-color:var(--st-progress)}
+  .mini-btn.danger{color:var(--st-started);border-color:var(--st-started)}
+  .mini-btn:disabled{opacity:.45;cursor:not-allowed}
+  .comment .prog,.comment .editor{grid-column:1 / -1}
+  .prog{padding-top:14px;border-top:1px dashed var(--artifact-line)}
+  .spark{display:block;margin:8px 0}
+  .proglist{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px 16px}
+  .proglist li{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--artifact-ink)}
+  .proglist .pdate{color:var(--artifact-muted);font-variant-numeric:tabular-nums}
+  .proglist .ppct{font-weight:700;font-variant-numeric:tabular-nums}
+  .delta{font-size:11px;font-weight:700;padding:1px 6px;border-radius:6px}
+  .delta.up{color:var(--st-complete);background:var(--st-complete-bg)}
+  .delta.down{color:var(--st-started);background:var(--st-started-bg)}
+  .delta.flat{color:var(--st-scoped);background:var(--st-scoped-bg)}
+  .lastupd{font-weight:600;text-transform:none;letter-spacing:0;color:var(--artifact-muted);margin-left:8px;font-size:11px}
+  .editor{background:var(--st-progress-bg);border:1px solid var(--artifact-line);border-radius:10px;padding:12px 14px;margin-top:4px}
+  html[data-theme='dark'] .editor{background:var(--artifact-track)}
+  .editor h4{margin:0 0 10px;color:var(--st-progress)}
+  .editrow{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px}
+  .editrow label{display:flex;flex-direction:column;gap:4px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--artifact-muted);font-weight:700}
+  .editrow input{font-size:14px;padding:6px 9px;border:1px solid var(--artifact-line);border-radius:8px;background:var(--artifact-surface);color:var(--artifact-ink);font-family:inherit}
+  .editrow input[type=number]{width:92px}
+  .hero .proglist li{color:#C7CCF0}
+  .hero .proglist .pdate{color:#9AA2D8}
+  .hero .proglist .ppct{color:#fff}
+  .hero .spark polyline{stroke:var(--artifact-cyan-bright)!important}
+  .hero .spark circle{fill:var(--artifact-cyan-bright)!important}
+  .ov-prog{margin-top:16px}
+  .ov-editor{margin-top:12px}
+  .foot{margin-top:26px;font-size:12px;color:var(--artifact-muted);text-align:center}
+  @media (max-width:720px){.comment{grid-template-columns:1fr}.hero{flex-direction:column;text-align:center}}
+  @media print{
+    body{margin:0;padding:.4in .5in;background:#fff;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .shell{max-width:100%!important}
+    .row,.hero,.comment{break-inside:avoid}
+    .controls,.expand-controls,.caret,.editor{display:none!important}
+    .fill{transition:none!important}
+    button{display:none!important}
+    .comment{display:grid!important}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="masthead">
+    <div>
+      <div class="brand">Singulier &nbsp;·&nbsp; Express Solicitors NCT Transformation</div>
+      <h1 data-glean-id="dash-title">Phase 1 Progress Tracker</h1>
+      <div class="sub">Target State Action Plan — advancement by workstream, mapped to the Phase 1 deck agenda.</div>
+    </div>
+    <div>
+      <div class="asof">As of 7 September 2026</div>
+    </div>
+  </div>
+
+  <div class="hero" data-glean-id="hero-overall">
+    <div class="ring">
+      <svg width="132" height="132" viewBox="0 0 132 132">
+        <circle cx="66" cy="66" r="58" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="12"/>
+        <circle id="ringfill" cx="66" cy="66" r="58" fill="none" stroke="#02FEE1" stroke-width="12"
+                stroke-linecap="round" stroke-dasharray="364.4" stroke-dashoffset="364.4"/>
+      </svg>
+      <div class="pct"><b id="overallNum">18%</b><span>Phase 1</span></div>
+    </div>
+    <div class="hero-txt">
+      <h2 id="heroH2">~15% of Phase 1 complete</h2>
+      <p>Progress is concentrated in the evidence base: Current State &amp; Requirements is effectively finished and Target-State Principles is now at 80%. MVP definition and detailed option desk research have also moved forward, while the summary and recommendation sections await downstream inputs.</p>
+      <div class="mini" id="statusCounts"></div>
+      <div id="overallExtra"></div>
+    </div>
+  </div>
+
+  <div class="controls" data-glean-id="owner-filter">
+    <span class="lbl">Filter by owner</span>
+    <button class="chip active" data-owner="all">All sections</button>
+    <button class="chip" data-owner="Adrian"><span class="dot" style="background:var(--st-progress)"></span>Adrian</button>
+    <button class="chip" data-owner="Léa"><span class="dot" style="background:var(--st-progress)"></span>Léa</button>
+    <button class="chip" data-owner="Timoté"><span class="dot" style="background:var(--st-progress)"></span>Timoté</button>
+    <button class="chip" data-owner="Elaine"><span class="dot" style="background:var(--st-progress)"></span>Elaine</button>
+    <button class="chip" data-owner="Andrew"><span class="dot" style="background:var(--st-progress)"></span>Andrew</button>
+    <button class="chip client" data-owner="Liam"><span class="dot" style="background:var(--st-scoped)"></span>Liam (Express)</button>
+    <button class="chip client" data-owner="Express team"><span class="dot" style="background:var(--st-scoped)"></span>Express team</button>
+  </div>
+
+  <div class="expand-controls" data-glean-id="expand-controls">
+    <button class="mini-btn toggle" id="editToggle" type="button">&#9998; Edit mode</button>
+    <button class="mini-btn danger" id="resetAll" type="button" style="display:none">Reset history</button>
+    <span class="ec-spacer"></span>
+    <button class="mini-btn" id="collapseAll" type="button">Collapse all</button>
+    <button class="mini-btn" id="expandAll" type="button">Expand all</button>
+  </div>
+  <div class="rows" id="rows"></div>
+
+  <div class="foot">Source: 28-08-26 Express Solicitors Phase 1 deck and Phase 1 Deck Blueprint. Percentages reflect current team advancement per workstream.</div>
+</div>
+
+<script>
+const SECTIONS = [
+  { n:"01", id:"exec-summary", title:"Executive Summary", pct:3, status:"scoped", statusLabel:"Scoped",
+    owners:["Adrian","Léa"],
+    activities:"Slide framework mapped: Phase 1 at a glance, decision required, recommended direction, and benefits / costs / risks / confidence. Léa to synthesise once the downstream workstreams close out.",
+    remaining:["Populate the one-page Phase 1 summary","Confirm the decision required and its owner","Land the recommended direction","Summarise benefits, costs, risks and confidence"] },
+  { n:"02", id:"scope-evidence", title:"Scope & Evidence Base", pct:3, status:"scoped", statusLabel:"Scoped",
+    owners:["Timoté"],
+    activities:"Structure mapped: Phase 1 objectives, sources reviewed, and evidence quality. Detailed content not yet built.",
+    remaining:["Confirm Phase 1 objectives","Log all sources reviewed","Document evidence quality, assumptions and remaining gaps"] },
+  { n:"03", id:"current-state", title:"Current State & Requirements", pct:100, status:"complete", statusLabel:"Complete",
+    owners:["Adrian","Léa","Timoté","Elaine","Liam","Express team"],
+    activities:"As-is NCT workflow, current systems and integrations (Proclaim, NICE CXone, RingCentral, Microsoft 365) and pain points documented. Non-negotiable capability matrix completed by Léa. Final review against Liam\'s latest documentation completed, with Liam\'s Requirements — Prioritised Wishlist folded into the capability matrix.",
+    remaining:["Sign off requirements and boundaries"] },
+  { n:"04", id:"target-state", title:"Target-State Principles", pct:80, status:"progress", statusLabel:"In progress",
+    owners:["Adrian","Léa","Timoté","Elaine"],
+    activities:"Target-state control principles and the human-vs-automated split drafted. Competitive benchmark on the tech stack and CCaaS providers underway.",
+    remaining:["Sign-off and alignment with Liam","Resolve the CXone / RingCentral bundle contract history and functional choices","Complete the CCaaS and tech-stack benchmark"] },
+  { n:"05", id:"mvp-phasing", title:"MVP & Phasing", pct:15, status:"started", statusLabel:"Started",
+    owners:["Adrian"],
+    activities:"Desk research underway on MVP scope (Adrian).",
+    remaining:["Define the common MVP scope","Set the active-enquiry approach, including the initial ~2,000 records","Frame the MVP, V1 and future-state horizons","Decide the historical-data treatment"] },
+  { n:"06", id:"option-landscape", title:"Option Landscape Executive Summary", pct:10, status:"started", statusLabel:"Started",
+    owners:["Adrian","Léa","Timoté"],
+    activities:"Comparison framework completed (Timoté).",
+    remaining:["Build 3–5 credible option archetypes with a one-line premise and trade-off","Complete the like-for-like scorecard","Compare cost, time, risk, complexity and capability","Assign confidence levels"] },
+  { n:"07", id:"option-assessments", title:"Detailed Option Assessments", pct:15, status:"started", statusLabel:"Started",
+    owners:["Adrian","Timoté","Léa","Liam"],
+    activities:"Research underway for a first discussion and alignment with Liam (Adrian); assessment and option-comparison structure prepared (Timoté). Booking demo calls with shortlisted CCaaS and CRM candidates.",
+    remaining:["Ongoing capabilities assessment during demo calls with shortlisted CCaaS and CRM candidates","Per option: premise and architecture","Requirement and pain-point coverage with trade-offs","Build mix — native, configured, SaaS, middleware, custom","Data and Proclaim implications","Indicative cost and timeline to MVP / V1","Operating model, support needs, benefits, risks and dependencies"] },
+  { n:"08", id:"recommendations", title:"Recommendations & Phase 2 Implications", pct:3, status:"scoped", statusLabel:"Scoped",
+    owners:["Andrew","Adrian"],
+    activities:"Structure mapped only. Andrew and Adrian to lead synthesis once options and the recommendation are firmed up.",
+    remaining:["Preferred route and rejection logic for alternatives","Conditions, key decisions and functionality trade-offs","Phase 2 scope: further discovery, procurement, proof of concept, mobilisation","Exit readiness, value created and RFP preparation"] }
+];
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+const BASELINE_DATE='2026-09-04';
+const TODAY='2026-09-07';
+const STORE_KEY='express_phase1_tracker_v3';
+const CURRENT_UPDATES={
+  'target-state':80,
+  'mvp-phasing':15,
+  'option-assessments':15
+};
+const CURRENT_OVERALL=18;
+const CLIENT_OWNERS=['Liam','Express team'];
+const CARET='<svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+let editing=false;
+let openSet=new Set();
+let activeOwner='all';
+
+function fmtDate(iso){ const p=String(iso).split('-'); if(p.length!==3) return iso; return parseInt(p[2],10)+' '+MONTHS[parseInt(p[1],10)-1]+' '+p[0]; }
+function statusFromPct(p){ if(p>=100)return{status:'complete',label:'Complete'}; if(p>=90)return{status:'complete',label:'Near complete'}; if(p>=30)return{status:'progress',label:'In progress'}; if(p>=5)return{status:'started',label:'Started'}; return{status:'scoped',label:'Scoped'}; }
+function lastPct(hist){ return hist[hist.length-1].pct; }
+function clampPct(v){ v=parseInt(v,10); if(isNaN(v))v=0; return Math.max(0,Math.min(100,v)); }
+
+function sortHistory(hist){
+  hist.sort((a,b)=> a.date<b.date?-1:(a.date>b.date?1:0));
+  return hist;
+}
+function addOrUpdate(hist,date,pct){
+  const existing=hist.find(e=>e.date===date);
+  if(existing) existing.pct=pct; else hist.push({date:date,pct:pct});
+  return sortHistory(hist);
+}
+function defaultState(){
+  const sections={};
+  SECTIONS.forEach(s=>{
+    const history=[{date:BASELINE_DATE,pct:s.pct}];
+    if(CURRENT_UPDATES[s.id]!==undefined) history.push({date:TODAY,pct:CURRENT_UPDATES[s.id]});
+    sections[s.id]={history:history};
+  });
+  return {version:3, overall:{history:[{date:BASELINE_DATE,pct:15},{date:TODAY,pct:CURRENT_OVERALL}]}, sections:sections};
+}
+function migrateState(st){
+  st.version=3;
+  if(!st.sections) st.sections={};
+  SECTIONS.forEach(s=>{
+    if(!st.sections[s.id]) st.sections[s.id]={history:[{date:BASELINE_DATE,pct:s.pct}]};
+    if(!Array.isArray(st.sections[s.id].history) || !st.sections[s.id].history.length){
+      st.sections[s.id].history=[{date:BASELINE_DATE,pct:s.pct}];
+    }
+    if(CURRENT_UPDATES[s.id]!==undefined) addOrUpdate(st.sections[s.id].history,TODAY,CURRENT_UPDATES[s.id]);
+  });
+  if(!st.overall || !Array.isArray(st.overall.history) || !st.overall.history.length){
+    st.overall={history:[{date:BASELINE_DATE,pct:15}]};
+  }
+  addOrUpdate(st.overall.history,TODAY,CURRENT_OVERALL);
+  return st;
+}
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORE_KEY) || localStorage.getItem('express_phase1_tracker_v2');
+    if(raw){ const st=JSON.parse(raw); if(st && st.sections) return migrateState(st); }
+  }catch(e){}
+  return defaultState();
+}
+function saveState(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+let state=loadState();
+
+function sparkline(hist){
+  const w=200,h=46,pad=5;
+  const y=p=> (h-pad-(p/100)*(h-2*pad)).toFixed(1);
+  if(hist.length===1){ return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'"><circle cx="'+(w/2)+'" cy="'+y(hist[0].pct)+'" r="3.2" fill="var(--artifact-purple)"/></svg>'; }
+  const n=hist.length;
+  const xs=hist.map((_,i)=> (pad+i*(w-2*pad)/(n-1)).toFixed(1));
+  const pts=hist.map((e,i)=> xs[i]+','+y(e.pct)).join(' ');
+  const dots=hist.map((e,i)=> '<circle cx="'+xs[i]+'" cy="'+y(e.pct)+'" r="2.8" fill="var(--artifact-purple)"/>').join('');
+  return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'"><polyline points="'+pts+'" fill="none" stroke="var(--artifact-purple)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'+dots+'</svg>';
+}
+function progList(hist){
+  const rev=hist.slice().reverse();
+  return rev.map((e,idx)=>{
+    const prev=rev[idx+1]; let delta='';
+    if(prev){ const d=e.pct-prev.pct; const cls=d>0?'up':(d<0?'down':'flat'); delta=' <span class="delta '+cls+'">'+(d>0?'+':'')+d+'</span>'; }
+    return '<li><span class="pdate">'+fmtDate(e.date)+'</span><span class="ppct">'+e.pct+'%</span>'+delta+'</li>';
+  }).join('');
+}
+
+function renderRows(){
+  const rows=document.getElementById('rows');
+  rows.innerHTML='';
+  SECTIONS.forEach(s=>{
+    const hist=state.sections[s.id].history;
+    const pct=lastPct(hist);
+    const st=statusFromPct(pct);
+    const el=document.createElement('div');
+    const open=openSet.has(s.id);
+    el.className='row'+(open?' open':'');
+    el.dataset.gleanId='row-'+s.id;
+    el.dataset.owners=s.owners.join('|');
+    el.dataset.id=s.id;
+    const ownerChips=s.owners.map(o=>'<span class="owner'+(CLIENT_OWNERS.includes(o)?' client':'')+'">'+esc(o)+(o==='Liam'?' \u00b7 Express':'')+'</span>').join('');
+    const remItems=s.remaining.map(r=>'<li>'+esc(r)+'</li>').join('');
+    const lastDate=fmtDate(hist[hist.length-1].date);
+    const editor = editing ? (
+      '<div class="editor">'+
+        '<h4>Log progress update</h4>'+
+        '<div class="editrow">'+
+          '<label>Date<input type="date" class="e-date" value="'+TODAY+'"></label>'+
+          '<label>Progress %<input type="number" class="e-pct" min="0" max="100" step="1" value="'+pct+'"></label>'+
+          '<button class="mini-btn primary e-log" type="button">Log update</button>'+
+          '<button class="mini-btn e-undo" type="button"'+(hist.length<=1?' disabled':'')+'>Undo last</button>'+
+        '</div>'+
+      '</div>') : '';
+    el.innerHTML=
+     '<div class="row-head" role="button" tabindex="0" aria-expanded="'+(open?'true':'false')+'" aria-label="Toggle details for '+esc(s.title)+'">'+
+      '<div class="row-top">'+
+        '<div class="num">'+s.n+'</div>'+
+        '<div class="title">'+esc(s.title)+'</div>'+
+        '<div class="status s-'+st.status+'">'+esc(st.label)+'</div>'+
+        CARET+
+      '</div>'+
+      '<div class="bar-wrap">'+
+        '<div class="track"><div class="fill f-'+st.status+'" data-pct="'+pct+'" style="width:0%"></div></div>'+
+        '<div class="pctnum">'+pct+'%</div>'+
+      '</div>'+
+     '</div>'+
+     '<div class="comment">'+
+      '<div>'+
+        '<h4>Key activities &amp; owners</h4>'+
+        '<p>'+esc(s.activities)+'</p>'+
+        '<div class="owners">'+ownerChips+'</div>'+
+      '</div>'+
+      '<div class="rem">'+
+        '<h4>Remaining tasks</h4>'+
+        '<ul>'+remItems+'</ul>'+
+      '</div>'+
+      '<div class="prog">'+
+        '<h4>Progression<span class="lastupd">updated '+lastDate+'</span></h4>'+
+        sparkline(hist)+
+        '<ul class="proglist">'+progList(hist)+'</ul>'+
+      '</div>'+
+      editor+
+     '</div>';
+    rows.appendChild(el);
+  });
+  wireRows();
+  applyFilter();
+  requestAnimationFrame(()=>{ document.querySelectorAll('.fill').forEach(f=>{ f.style.width=f.dataset.pct+'%'; }); });
+}
+
+function toggleRow(row){
+  const id=row.dataset.id;
+  const open=row.classList.toggle('open');
+  if(open) openSet.add(id); else openSet.delete(id);
+  const head=row.querySelector('.row-head');
+  if(head) head.setAttribute('aria-expanded', open?'true':'false');
+}
+function logUpdate(id,date,pct){
+  const hist=state.sections[id].history;
+  const ex=hist.find(e=>e.date===date);
+  if(ex){ ex.pct=pct; } else { hist.push({date:date,pct:pct}); }
+  hist.sort((a,b)=> a.date<b.date?-1:(a.date>b.date?1:0));
+  saveState(); renderRows(); renderOverall();
+}
+function undoLast(id){
+  const hist=state.sections[id].history;
+  if(hist.length>1){ hist.pop(); saveState(); renderRows(); renderOverall(); }
+}
+function wireRows(){
+  document.querySelectorAll('.row-head').forEach(head=>{
+    head.addEventListener('click', ()=> toggleRow(head.closest('.row')));
+    head.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleRow(head.closest('.row')); } });
+  });
+  if(editing){
+    document.querySelectorAll('.row').forEach(row=>{
+      const id=row.dataset.id;
+      const logBtn=row.querySelector('.e-log');
+      const undoBtn=row.querySelector('.e-undo');
+      if(logBtn) logBtn.addEventListener('click', ev=>{ ev.stopPropagation();
+        logUpdate(id, row.querySelector('.e-date').value||TODAY, clampPct(row.querySelector('.e-pct').value)); });
+      if(undoBtn) undoBtn.addEventListener('click', ev=>{ ev.stopPropagation(); undoLast(id); });
+    });
+  }
+}
+
+function renderOverall(){
+  const hist=state.overall.history;
+  const p=lastPct(hist);
+  const numEl=document.getElementById('overallNum'); if(numEl) numEl.textContent=p+'%';
+  const h2=document.getElementById('heroH2'); if(h2) h2.textContent=p+'% of Phase 1 complete';
+  const ring=document.getElementById('ringfill');
+  if(ring){ const C=364.4; ring.style.transition='stroke-dashoffset .9s cubic-bezier(.2,.7,.2,1)'; requestAnimationFrame(()=>{ ring.style.strokeDashoffset=(C*(1-p/100)).toFixed(1); }); }
+  // status band counts from live section values
+  const bands={complete:0,progress:0,started:0,scoped:0};
+  SECTIONS.forEach(s=>{ bands[statusFromPct(lastPct(state.sections[s.id].history)).status]++; });
+  const labels={complete:'Near complete',progress:'In progress',started:'Started',scoped:'Scoped'};
+  const sc=document.getElementById('statusCounts');
+  if(sc) sc.innerHTML=['complete','progress','started','scoped'].map(k=>'<div><div class="k">'+bands[k]+'</div><div class="l">'+labels[k]+'</div></div>').join('');
+  // progression + editor
+  const extra=document.getElementById('overallExtra');
+  let html='<div class="ov-prog">'+sparkline(hist)+'<ul class="proglist">'+progList(hist)+'</ul></div>';
+  if(editing){
+    html+='<div class="editor ov-editor"><h4>Log overall update</h4><div class="editrow">'+
+      '<label>Date<input type="date" id="ov-date" value="'+TODAY+'"></label>'+
+      '<label>Overall %<input type="number" id="ov-pct" min="0" max="100" step="1" value="'+p+'"></label>'+
+      '<button class="mini-btn primary" id="ov-log" type="button">Log overall</button>'+
+      '<button class="mini-btn" id="ov-undo" type="button"'+(hist.length<=1?' disabled':'')+'>Undo last</button>'+
+      '</div></div>';
+  }
+  extra.innerHTML=html;
+  if(editing){
+    document.getElementById('ov-log').addEventListener('click', ()=>{
+      const d=document.getElementById('ov-date').value||TODAY; const v=clampPct(document.getElementById('ov-pct').value);
+      const ex=hist.find(e=>e.date===d); if(ex){ex.pct=v;} else {hist.push({date:d,pct:v});}
+      hist.sort((a,b)=> a.date<b.date?-1:(a.date>b.date?1:0)); saveState(); renderOverall();
+    });
+    const u=document.getElementById('ov-undo'); if(u) u.addEventListener('click', ()=>{ if(hist.length>1){hist.pop(); saveState(); renderOverall();} });
+  }
+}
+
+function applyFilter(){
+  document.querySelectorAll('.row').forEach(row=>{
+    if(activeOwner==='all' || row.dataset.owners.split('|').includes(activeOwner)) row.classList.remove('dim');
+    else row.classList.add('dim');
+  });
+}
+
+// owner filter
+document.querySelectorAll('.chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    activeOwner=chip.dataset.owner;
+    applyFilter();
+  });
+});
+
+// expand / collapse
+document.getElementById('expandAll').addEventListener('click', ()=>{
+  SECTIONS.forEach(s=>openSet.add(s.id));
+  document.querySelectorAll('.row').forEach(r=>{ r.classList.add('open'); const h=r.querySelector('.row-head'); if(h) h.setAttribute('aria-expanded','true'); });
+});
+document.getElementById('collapseAll').addEventListener('click', ()=>{
+  openSet.clear();
+  document.querySelectorAll('.row').forEach(r=>{ r.classList.remove('open'); const h=r.querySelector('.row-head'); if(h) h.setAttribute('aria-expanded','false'); });
+});
+
+// edit mode toggle
+document.getElementById('editToggle').addEventListener('click', ()=>{
+  editing=!editing;
+  const btn=document.getElementById('editToggle');
+  btn.classList.toggle('on', editing);
+  btn.innerHTML = editing ? '\u2713 Done editing' : '\u270e Edit mode';
+  document.getElementById('resetAll').style.display = editing ? '' : 'none';
+  if(editing){ SECTIONS.forEach(s=>openSet.add(s.id)); }
+  renderRows(); renderOverall();
+});
+
+// reset (two-step confirm)
+let resetArmed=false, resetTimer=null;
+document.getElementById('resetAll').addEventListener('click', function(){
+  const btn=this;
+  if(!resetArmed){ resetArmed=true; btn.textContent='Click again to confirm'; resetTimer=setTimeout(()=>{ resetArmed=false; btn.textContent='Reset history'; },3000); return; }
+  clearTimeout(resetTimer); resetArmed=false; btn.textContent='Reset history';
+  state=defaultState(); saveState(); renderRows(); renderOverall();
+});
+
+renderRows();
+renderOverall();
+</script>
+
+<script>
+  window.GleanBridge && window.GleanBridge.postMessage({
+    actionId:'export-pdf', type:'glean-add-menu',
+    metadata:{ label:'Export as PDF', icon:'export' }
+  });
+  window.GleanBridge && window.GleanBridge.onMessage('action', function(data){
+    if(data.actionId==='export-pdf') window.print();
+  });
+</script>
+</body>
+</html>
