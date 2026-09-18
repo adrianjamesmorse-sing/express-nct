@@ -165,7 +165,7 @@
       <div class="sub">Target State Action Plan — advancement by workstream, mapped to the Phase 1 deck agenda.</div>
     </div>
     <div>
-      <div class="asof">As of 15 September 2026</div>
+      <div class="asof">As of 18 September 2026</div>
     </div>
   </div>
 
@@ -176,11 +176,11 @@
         <circle id="ringfill" cx="66" cy="66" r="58" fill="none" stroke="#02FEE1" stroke-width="12"
                 stroke-linecap="round" stroke-dasharray="364.4" stroke-dashoffset="364.4"/>
       </svg>
-      <div class="pct"><b id="overallNum">45%</b><span>Phase 1</span></div>
+      <div class="pct"><b id="overallNum">83%</b><span>Phase 1</span></div>
     </div>
     <div class="hero-txt">
       <h2 id="heroH2">~15% of Phase 1 complete</h2>
-      <p>Progress is concentrated in the evidence base: Scope &amp; Evidence Base is complete, Target-State Principles is at 95%, and MVP definition has reached 60%. The option landscape and detailed assessments are advancing, while the summary and recommendation sections await downstream inputs.</p>
+      <p>Executive Summary, Target-State Principles and MVP &amp; Phasing are now complete. Scope &amp; Evidence Base is also complete, while the option landscape and detailed assessments are at 60%; Recommendations &amp; Phase 2 implications has started.</p>
       <div class="mini" id="statusCounts"></div>
       <div id="overallExtra"></div>
     </div>
@@ -212,7 +212,7 @@
 
 <script>
 const SECTIONS = [
-  { n:"01", id:"exec-summary", title:"Executive Summary", pct:3, status:"scoped", statusLabel:"Scoped",
+  { n:"01", id:"exec-summary", title:"Executive Summary", pct:100, status:"complete", statusLabel:"Complete",
     owners:["Adrian","Léa"],
     activities:"Slide framework mapped: Phase 1 at a glance, decision required, recommended direction, and benefits / costs / risks / confidence. Léa to synthesise once the downstream workstreams close out.",
     remaining:["Populate the one-page Phase 1 summary","Confirm the decision required and its owner","Land the recommended direction","Summarise benefits, costs, risks and confidence"] },
@@ -224,23 +224,23 @@ const SECTIONS = [
     owners:["Adrian","Léa","Timoté","Elaine","Liam","Express team"],
     activities:"As-is NCT workflow, current systems and integrations (Proclaim, NICE CXone, RingCentral, Microsoft 365) and pain points documented. Non-negotiable capability matrix completed by Léa. Final review against Liam\'s latest documentation completed, with Liam\'s Requirements — Prioritised Wishlist folded into the capability matrix.",
     remaining:["Sign off requirements and boundaries"] },
-  { n:"04", id:"target-state", title:"Target-State Principles", pct:95, status:"complete", statusLabel:"Near complete",
+  { n:"04", id:"target-state", title:"Target-State Principles", pct:100, status:"complete", statusLabel:"Complete",
     owners:["Adrian","Léa","Timoté","Elaine"],
     activities:"Target-state control principles and the human-vs-automated split drafted. Competitive benchmark on the tech stack and CCaaS providers underway.",
     remaining:["Sign-off and alignment with Liam","Resolve the CXone / RingCentral bundle contract history and functional choices","Complete the CCaaS and tech-stack benchmark"] },
-  { n:"05", id:"mvp-phasing", title:"MVP & Phasing", pct:60, status:"progress", statusLabel:"In progress",
+  { n:"05", id:"mvp-phasing", title:"MVP & Phasing", pct:100, status:"complete", statusLabel:"Complete",
     owners:["Adrian"],
     activities:"Desk research underway on MVP scope (Adrian).",
     remaining:["Define the common MVP scope","Set the active-enquiry approach, including the initial ~2,000 records","Frame the MVP, V1 and future-state horizons","Decide the historical-data treatment"] },
-  { n:"06", id:"option-landscape", title:"Option Landscape Executive Summary", pct:20, status:"started", statusLabel:"Started",
+  { n:"06", id:"option-landscape", title:"Option Landscape Executive Summary", pct:60, status:"progress", statusLabel:"In progress",
     owners:["Adrian","Léa","Timoté"],
     activities:"Comparison framework completed (Timoté).",
     remaining:["Build 3–5 credible option archetypes with a one-line premise and trade-off","Complete the like-for-like scorecard","Compare cost, time, risk, complexity and capability","Assign confidence levels"] },
-  { n:"07", id:"option-assessments", title:"Detailed Option Assessments", pct:30, status:"progress", statusLabel:"In progress",
+  { n:"07", id:"option-assessments", title:"Detailed Option Assessments", pct:60, status:"progress", statusLabel:"In progress",
     owners:["Adrian","Timoté","Léa","Liam"],
     activities:"Research underway for a first discussion and alignment with Liam (Adrian); assessment and option-comparison structure prepared (Timoté). Booking demo calls with shortlisted CCaaS and CRM candidates. Priority CCaaS tools assessed: Five9, NICE CXOne, Zoom Contact Center, Microsoft D365 Contact Center, Genesys and Talkdesk.",
     remaining:["Ongoing capabilities assessment during demo calls with shortlisted CCaaS and CRM candidates","Per option: premise and architecture","Requirement and pain-point coverage with trade-offs","Build mix — native, configured, SaaS, middleware, custom","Data and Proclaim implications","Indicative cost and timeline to MVP / V1","Operating model, support needs, benefits, risks and dependencies"] },
-  { n:"08", id:"recommendations", title:"Recommendations & Phase 2 Implications", pct:3, status:"scoped", statusLabel:"Scoped",
+  { n:"08", id:"recommendations", title:"Recommendations & Phase 2 Implications", pct:20, status:"started", statusLabel:"Started",
     owners:["Andrew","Adrian"],
     activities:"Structure mapped only. Andrew and Adrian to lead synthesis once options and the recommendation are firmed up.",
     remaining:["Preferred route and rejection logic for alternatives","Conditions, key decisions and functionality trade-offs","Phase 2 scope: further discovery, procurement, proof of concept, mobilisation","Exit readiness, value created and RFP preparation"] }
@@ -251,8 +251,9 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 const BASELINE_DATE='2026-09-04';
 const PREVIOUS_DATE='2026-09-07';
 const LAST_UPDATE_DATE='2026-09-14';
-const TODAY='2026-09-15';
-const STORE_KEY='express_phase1_tracker_v5';
+const LATEST_UPDATE_DATE='2026-09-15';
+const TODAY='2026-09-18';
+const STORE_KEY='express_phase1_tracker_v6';
 const BASELINE_PCTS={
   'exec-summary':3,
   'scope-evidence':3,
@@ -276,16 +277,25 @@ const LAST_UPDATES={
   'option-landscape':10,
   'option-assessments':25
 };
-const CURRENT_UPDATES={
+const LATEST_UPDATES={
   'scope-evidence':100,
   'target-state':95,
   'mvp-phasing':60,
   'option-landscape':20,
   'option-assessments':30
 };
+const CURRENT_UPDATES={
+  'exec-summary':100,
+  'target-state':100,
+  'mvp-phasing':100,
+  'option-landscape':60,
+  'option-assessments':60,
+  'recommendations':20
+};
 const PREVIOUS_OVERALL=18;
 const LAST_OVERALL=25;
-const CURRENT_OVERALL=45;
+const LATEST_OVERALL=45;
+const CURRENT_OVERALL=83;
 const CLIENT_OWNERS=['Liam','Express team'];
 const CARET='<svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -314,13 +324,14 @@ function defaultState(){
     const history=[{date:BASELINE_DATE,pct:BASELINE_PCTS[s.id] ?? s.pct}];
     if(PREVIOUS_UPDATES[s.id]!==undefined) history.push({date:PREVIOUS_DATE,pct:PREVIOUS_UPDATES[s.id]});
     if(LAST_UPDATES[s.id]!==undefined) history.push({date:LAST_UPDATE_DATE,pct:LAST_UPDATES[s.id]});
+    if(LATEST_UPDATES[s.id]!==undefined) history.push({date:LATEST_UPDATE_DATE,pct:LATEST_UPDATES[s.id]});
     if(CURRENT_UPDATES[s.id]!==undefined) history.push({date:TODAY,pct:CURRENT_UPDATES[s.id]});
     sections[s.id]={history:history};
   });
-  return {version:5, overall:{history:[{date:BASELINE_DATE,pct:15},{date:PREVIOUS_DATE,pct:PREVIOUS_OVERALL},{date:LAST_UPDATE_DATE,pct:LAST_OVERALL},{date:TODAY,pct:CURRENT_OVERALL}]}, sections:sections};
+  return {version:6, overall:{history:[{date:BASELINE_DATE,pct:15},{date:PREVIOUS_DATE,pct:PREVIOUS_OVERALL},{date:LAST_UPDATE_DATE,pct:LAST_OVERALL},{date:LATEST_UPDATE_DATE,pct:LATEST_OVERALL},{date:TODAY,pct:CURRENT_OVERALL}]}, sections:sections};
 }
 function migrateState(st){
-  st.version=5;
+  st.version=6;
   if(!st.sections) st.sections={};
   SECTIONS.forEach(s=>{
     if(!st.sections[s.id]) st.sections[s.id]={history:[{date:BASELINE_DATE,pct:BASELINE_PCTS[s.id] ?? s.pct}]};
@@ -329,6 +340,7 @@ function migrateState(st){
     }
     if(PREVIOUS_UPDATES[s.id]!==undefined) addOrUpdate(st.sections[s.id].history,PREVIOUS_DATE,PREVIOUS_UPDATES[s.id]);
     if(LAST_UPDATES[s.id]!==undefined) addOrUpdate(st.sections[s.id].history,LAST_UPDATE_DATE,LAST_UPDATES[s.id]);
+    if(LATEST_UPDATES[s.id]!==undefined) addOrUpdate(st.sections[s.id].history,LATEST_UPDATE_DATE,LATEST_UPDATES[s.id]);
     if(CURRENT_UPDATES[s.id]!==undefined) addOrUpdate(st.sections[s.id].history,TODAY,CURRENT_UPDATES[s.id]);
   });
   if(!st.overall || !Array.isArray(st.overall.history) || !st.overall.history.length){
@@ -336,12 +348,13 @@ function migrateState(st){
   }
   addOrUpdate(st.overall.history,PREVIOUS_DATE,PREVIOUS_OVERALL);
   addOrUpdate(st.overall.history,LAST_UPDATE_DATE,LAST_OVERALL);
+  addOrUpdate(st.overall.history,LATEST_UPDATE_DATE,LATEST_OVERALL);
   addOrUpdate(st.overall.history,TODAY,CURRENT_OVERALL);
   return st;
 }
 function loadState(){
   try{
-    const raw=localStorage.getItem(STORE_KEY) || localStorage.getItem('express_phase1_tracker_v4') || localStorage.getItem('express_phase1_tracker_v3') || localStorage.getItem('express_phase1_tracker_v2');
+    const raw=localStorage.getItem(STORE_KEY) || localStorage.getItem('express_phase1_tracker_v5') || localStorage.getItem('express_phase1_tracker_v4') || localStorage.getItem('express_phase1_tracker_v3') || localStorage.getItem('express_phase1_tracker_v2');
     if(raw){ const st=JSON.parse(raw); if(st && st.sections){ const migrated=migrateState(st); try{ localStorage.setItem(STORE_KEY, JSON.stringify(migrated)); }catch(e){} return migrated; } }
   }catch(e){}
   return defaultState();
